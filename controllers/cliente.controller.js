@@ -32,6 +32,7 @@ const login = async(req, res) => {
         })
     } catch (error) {
         winston.log('error', `error ${error}`, { service: 'login cliente' });
+        return res.status(500).json({ ok: false, msg: 'Error inesperado en la carga de usuario' });
     }
 }
 
