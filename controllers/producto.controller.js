@@ -1,12 +1,10 @@
 'use strict'
 const winston = require('../logs/winston');
-const bcrypt = require('bcrypt');
 const fs = require('fs');
 const path = require('path');
 
-const { generateJWT } = require('../helpers/jwt');
 const Producto = require('../models/producto.model');
-const Admin = require('../models/admin.model');
+const Inventario = require('../models/inventario.model');
 
 const registrarProductoConAdmin = async(req, res) => {
     winston.log('info', 'inicio del registro de producto con administrador', { service: 'registrar producto' })
@@ -23,7 +21,7 @@ const registrarProductoConAdmin = async(req, res) => {
     }
 
     try {
-        if (req.files && req.files.portada.path) {
+        if ((req.files || Object.keys(req.files).length !== 0) && req.files.portada.path) {
             const img_path = req.files.portada.path;
             const name = img_path.split('\/');
             const portada_name = name[2];
@@ -34,9 +32,17 @@ const registrarProductoConAdmin = async(req, res) => {
 
         const createdPoducto = await Producto.create(data);
 
+        const inventarioDB = await Inventario.create({
+            admin: req.user.sub,
+            cantidad: data.stock,
+            proveedor: 'Tienda propia',
+            producto: createdPoducto._id
+        })
+
         return res.status(200).json({
             ok: true,
-            data: createdPoducto
+            data: createdPoducto,
+            inventarioDB
         })
     } catch (error) {
         winston.log('error', `error ${error}`, { service: 'crear producto' });
@@ -189,7 +195,7 @@ const actualizarProducto = async(req, res) => {
             ...req.body
         }
 
-        if (req.files)  {
+        if (req.files || Object.keys(req.files).length !== 0) {
             const img_path = req.files.portada.path;
             const name = img_path.split('\/');
             const portada_name = name[2];
@@ -241,7 +247,7 @@ const eliminarProducto = async(req, res) => {
             });
         }
 
-        if (productoDB)  {
+        if (productoDB) {
             if (productoDB.portada) {
                 // Comprobamos el fichero almacenado anteriormente si existe
                 fs.stat(`./uploads/productos/${productoDB.portada}`, (err) => {
@@ -271,6 +277,125 @@ const eliminarProducto = async(req, res) => {
     }
 }
 
+const listarInventarioProducto = async(req, res) => {
+    winston.log('info', 'inicio de listar inventario de producto', { service: 'inventario producto' })
+
+    if (req.user && req.user.rol !== 'admin') {
+        winston.log('error', 'No se tiene permisos para este proceso', { service: 'eliminar producto' })
+        return res.status(401).json({ ok: false, msg: 'No se tiene permisos para este proceso' });
+    }
+
+    const id = req.params['id'];
+
+    try {
+        const inventarioDB = await Inventario.find({ producto: id })
+            .populate('admin')
+            .sort({ createdAt: -1 });
+
+        if (!inventarioDB) {
+            return res.status(200).json({
+                ok: true,
+                msg: `No se ha encontrado inventario para id de producto ${id}`
+            });
+        }
+
+        return res.status(200).json({
+            ok: true,
+            data: inventarioDB
+        });
+
+    } catch (error) {
+        return res.status(404).json({
+            ok: false,
+            msg: `No se ha encontrado inventario para id de producto ${id}`,
+            data: []
+        });
+    }
+}
+
+const eliminarInventarioProducto = async(req, res) => {
+    winston.log('info', 'inicio de eliminar inventario de producto', { service: 'inventario producto' })
+
+    if (req.user && req.user.rol !== 'admin') {
+        winston.log('error', 'No se tiene permisos para este proceso', { service: 'eliminar producto' })
+        return res.status(401).json({ ok: false, msg: 'No se tiene permisos para este proceso' });
+    }
+
+    const id = req.params['id'];
+
+    try {
+        const inventarioDB = await Inventario.findById(id);
+
+        const productoDB = await Producto.findOne({ _id: inventarioDB.producto });
+
+        const nuevoStock = parseInt(productoDB.stock) - parseInt(inventarioDB.cantidad);
+
+        if (nuevoStock < 0) {
+            return res.status(404).json({
+                ok: false,
+                msg: 'No hay stock suficiente',
+                data: []
+            });
+        }
+
+        const updateProduct = await Producto.findByIdAndUpdate({ _id: inventarioDB.producto }, {
+            stock: nuevoStock
+        }, { new: true });
+
+        return res.status(200).json({
+            ok: true,
+            data: updateProduct
+        });
+
+    } catch (error) {
+        return res.status(404).json({
+            ok: false,
+            msg: `No se ha encontrado inventario para id de producto ${id}`,
+            data: []
+        });
+    }
+}
+
+const registrarInventarioProducto = async(req, res) => {
+    winston.log('info', 'inicio de  registrar inventario de producto', { service: 'inventario producto' })
+
+    if (req.user && req.user.rol !== 'admin') {
+        winston.log('error', 'No se tiene permisos para este proceso', { service: 'eliminar producto' })
+        return res.status(401).json({ ok: false, msg: 'No se tiene permisos para este proceso' });
+    }
+
+    try {
+        const inventario = req.body;
+
+        const inventarioUPD = {
+            ...inventario,
+            admin: req.user.sub
+        }
+
+        const inventarioDB = await Inventario.create(inventarioUPD);
+
+        const productoDB = await Producto.findById(inventarioDB.producto);
+
+        const nuevoStock = parseInt(productoDB.stock) + parseInt(inventarioDB.cantidad);
+
+        const updateProduct = await Producto.findByIdAndUpdate({ _id: inventarioDB.producto }, {
+            stock: nuevoStock
+        }, { new: true });
+
+        return res.status(200).json({
+            ok: true,
+            data: inventarioDB
+        })
+
+    } catch (error) {
+        return res.status(404).json({
+            ok: false,
+            msg: `No se ha encontrado inventario para id de producto ${id}`,
+            data: []
+        });
+    }
+}
+
 module.exports = {
     registrarProductoConAdmin,
     listarProductos,
@@ -279,4 +404,7 @@ module.exports = {
     obtenerProductoPorId,
     actualizarProducto,
     eliminarProducto,
+    listarInventarioProducto,
+    eliminarInventarioProducto,
+    registrarInventarioProducto,
 }
