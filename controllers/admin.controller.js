@@ -45,7 +45,7 @@ const login = async(req, res) => {
     // Controlamos los fallos
     try {
         // Verificar email
-        const adminDB = await Cliente.findOne({ email });
+        const adminDB = await Admin.findOne({ email });
         if (!adminDB) {
             winston.log('warn', `el usuario ${email} no existe login`, { service: 'login administrado' })
 
@@ -57,7 +57,8 @@ const login = async(req, res) => {
             winston.log('warn', `el usuario ${email} no coincide la contrasena del login`, { service: 'login cliente' })
             return res.status(400).json({ ok: false, msg: 'El usuario no es válido' });
         }
-        // Generar el token
+        console.log(adminDB)
+            // Generar el token
         const token = await generateJWT(adminDB);
         // Retornamos la respuesta
         return res.status(200).json({

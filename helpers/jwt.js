@@ -13,6 +13,7 @@ const generateJWT = (user) => {
             nombre: user.nombre,
             apellidos: user.apellidos,
             email: user.email,
+            rol: user.rol ? user.rol : 'user',
             iat: moment().unix(),
             exp: moment().add(7, 'days').unix()
         }
