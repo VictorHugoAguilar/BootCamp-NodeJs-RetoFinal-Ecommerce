@@ -39,6 +39,7 @@ app.use((req, res, next) => {
 app.use('/api/clientes', require('./routes/cliente.routes'));
 app.use('/api/admin', require('./routes/admin.routes'));
 app.use('/api/productos', require('./routes/producto.routes'));
+app.use('/api/cupones', require('./routes/cupones.routes'));
 
 
 // Levantamos el server

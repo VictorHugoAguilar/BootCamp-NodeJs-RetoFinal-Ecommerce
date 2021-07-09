@@ -1,7 +1,7 @@
 'use strict'
 const { Schema, model } = require('mongoose');
 
-const CuponesSchema = Schema({
+const CuponSchema = Schema({
     codigo: {
         type: String,
         require: true
@@ -10,10 +10,10 @@ const CuponesSchema = Schema({
         type: String,
         require: true
     },
-    valor: [{
+    valor: {
         type: Number,
         require: true
-    }],
+    },
     limite: {
         type: Number,
         require: true
@@ -25,10 +25,10 @@ const CuponesSchema = Schema({
     }
 }, { collection: 'cupones' });
 
-CuponesSchema.method('toJSON', function() {
+CuponSchema.method('toJSON', function() {
     const { __v, _id, ...object } = this.toObject();
     object.uid = _id;
     return object;
 });
 
-module.exports = model('Cupones', CuponesSchema);
+module.exports = model('Cupon', CuponSchema);
