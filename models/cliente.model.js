@@ -1,6 +1,5 @@
 'use strict'
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+const { Schema, model } = require('mongoose');
 
 const ClienteSchema = Schema({
     nombre: {
@@ -11,10 +10,6 @@ const ClienteSchema = Schema({
         type: String,
         require: true
     },
-    pais: {
-        type: String,
-        require: false
-    },
     email: {
         type: String,
         require: true
@@ -22,6 +17,10 @@ const ClienteSchema = Schema({
     password: {
         type: String,
         require: true
+    },
+    pais: {
+        type: String,
+        require: false
     },
     perfil: {
         type: String,
@@ -46,4 +45,10 @@ const ClienteSchema = Schema({
     },
 });
 
-module.exports = mongoose.model('Cliente', ClienteSchema);
+ClienteSchema.method('toJSON', function() {
+    const { __v, _id, ...object } = this.toObject();
+    //object.uid = _id;
+    return object;
+});
+
+module.exports = model('Cliente', ClienteSchema);

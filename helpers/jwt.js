@@ -16,9 +16,7 @@ const generateJWT = (user) => {
             iat: moment().unix(),
             exp: moment().add(7, 'days').unix()
         }
-        jwt.sign(payload, process.env.JWT_SECRET, {
-            expiresIn: '480h',
-        }, (err, token) => {
+        jwt.sign(payload, process.env.JWT_SECRET, (err, token) => {
             if (err) {
                 console.log(err);
                 reject('No se pudo generar el JWT');
