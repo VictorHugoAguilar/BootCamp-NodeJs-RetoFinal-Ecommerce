@@ -5,6 +5,36 @@ const { generateJWT } = require('../helpers/jwt');
 
 const Cliente = require('../models/cliente.model');
 
+const login = async(req, res) => {
+    winston.log('info', 'inicio login de cliente', { service: 'login cliente' })
+    const { email, password } = req.body;
+    // Controlamos los fallos
+    try {
+        // Verificar email
+        const clienteDB = await Cliente.findOne({ email });
+        if (!clienteDB) {
+            winston.log('warn', `el usuario ${email} no existe login`, { service: 'login cliente' })
+
+            return res.status(404).json({ ok: false, msg: 'El usuario no es válido' });
+        }
+        // Verificar contraseña
+        const validPassword = bcrypt.compareSync(password, clienteDB.password);
+        if (!validPassword) {
+            winston.log('warn', `el usuario ${email} no coincide la contrasena del login`, { service: 'login cliente' })
+            return res.status(400).json({ ok: false, msg: 'El usuario no es válido' });
+        }
+        // Generar el token
+        const token = await generateJWT(clienteDB);
+        // Retornamos la respuesta
+        return res.status(200).json({
+            ok: true,
+            token: token
+        })
+    } catch (error) {
+        winston.log('error', `error ${error}`, { service: 'login cliente' });
+    }
+}
+
 const listarTodos = async(req, res) => {
     winston.log('info', 'inicio obtencion de cliente', { service: 'obtener cliente' })
 
@@ -122,39 +152,71 @@ const listarClienteConAdmin = async(req, res) => {
         winston.log('error', `error => ${error}`, { service: 'registrar cliente' })
         return res.status(500).json({ ok: false, msg: 'Error inesperado en la carga de usuario' });
     }
-
 }
 
+const actualizarClienteConAdmin = async(req, res) => {
+    winston.log('info', 'inicio de actualizar de cliente por un administrador', { service: 'actualizar cliente' })
 
+    if (req.user && req.user.rol !== 'admin') {
+        return res.status(401).json({ ok: false, msg: 'No se tiene permisos para este proceso' });
+    }
 
+    const id = req.params['id'];
+    if (!id || id == undefined || id == 'undefined') {
+        return res.status(404).json({ ok: false, msg: 'Tiene que tener un id cliente' });
+    }
 
-const login = async(req, res) => {
-    winston.log('info', 'inicio login de cliente', { service: 'login cliente' })
-    const { email, password } = req.body;
-    // Controlamos los fallos
     try {
-        // Verificar email
-        const clienteDB = await Cliente.findOne({ email });
-        if (!clienteDB) {
-            winston.log('warn', `el usuario ${email} no existe login`, { service: 'login cliente' })
+        const clienteDB = await Cliente.findById(id);
 
-            return res.status(404).json({ ok: false, msg: 'El usuario no es válido' });
+        if (!clienteDB) {
+            return res.status(404).json({ ok: false, msg: 'El cliente no existe' });
         }
-        // Verificar contraseña
-        const validPassword = bcrypt.compareSync(password, clienteDB.password);
-        if (!validPassword) {
-            winston.log('warn', `el usuario ${email} no coincide la contrasena del login`, { service: 'login cliente' })
-            return res.status(400).json({ ok: false, msg: 'El usuario no es válido' });
+
+        const clienteUpd = {
+            ...req.body
         }
-        // Generar el token
-        const token = await generateJWT(clienteDB);
-        // Retornamos la respuesta
+
+        const updateClient = await Cliente.findByIdAndUpdate(id, clienteUpd, { new: true });
+
         return res.status(200).json({
             ok: true,
-            token: token
-        })
+            data: updateClient
+        });
     } catch (error) {
-        winston.log('error', `error ${error}`, { service: 'login cliente' });
+        winston.log('error', `error => ${error}`, { service: 'registrar cliente' })
+        return res.status(500).json({ ok: false, msg: 'Error inesperado en la carga de usuario' });
+    }
+}
+
+const eliminarClienteConAdmin = async(req, res) => {
+    winston.log('info', 'inicio de eliminacion de cliente por un administrador', { service: 'eliminar cliente' })
+
+    if (req.user && req.user.rol !== 'admin') {
+        return res.status(401).json({ ok: false, msg: 'No se tiene permisos para este proceso' });
+    }
+
+    const id = req.params['id'];
+    if (!id || id == undefined || id == 'undefined') {
+        return res.status(404).json({ ok: false, msg: 'Tiene que tener un id cliente' });
+    }
+
+    try {
+        const clienteDB = await Cliente.findById(id);
+
+        if (!clienteDB) {
+            return res.status(404).json({ ok: false, msg: 'El cliente no existe' });
+        }
+
+        const deleteClient = await Cliente.findByIdAndRemove(id);
+
+        return res.status(200).json({
+            ok: true,
+            data: deleteClient
+        });
+    } catch (error) {
+        winston.log('error', `error => ${error}`, { service: 'registrar cliente' })
+        return res.status(500).json({ ok: false, msg: 'Error inesperado en la carga de usuario' });
     }
 }
 
@@ -165,4 +227,6 @@ module.exports = {
     listarConFiltro,
     registrarClienteConAdmin,
     listarClienteConAdmin,
+    actualizarClienteConAdmin,
+    eliminarClienteConAdmin,
 }

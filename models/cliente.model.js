@@ -43,6 +43,11 @@ const ClienteSchema = Schema({
         type: String,
         require: false
     },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+        require: true
+    }
 });
 
 ClienteSchema.method('toJSON', function() {
