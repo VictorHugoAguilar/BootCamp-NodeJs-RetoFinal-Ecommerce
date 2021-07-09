@@ -66,4 +66,4 @@ ProductoSchema.method('toJSON', function() {
     return object;
 });
 
-module.exports = model('Producto', ClienteSchema);
+module.exports = model('Producto', ProductoSchema);

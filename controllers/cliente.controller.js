@@ -99,7 +99,7 @@ const registrar = async(req, res) => {
 const registrarClienteConAdmin = async(req, res) => {
     winston.log('info', 'inicio del registro de cliente por un administrador', { service: 'registrar cliente' })
 
-    if (req.user && req.user.role === 'admin') {
+    if (req.user && req.user.rol === 'admin') {
         const { email, password } = req.body;
         try {
             const existeEmail = await Cliente.findOne({ email });
