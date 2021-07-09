@@ -66,7 +66,7 @@ const registrar = async(req, res) => {
     }
 }
 
-const registrarClienteAdmin = async(req, res) => {
+const registrarClienteConAdmin = async(req, res) => {
     winston.log('info', 'inicio del registro de cliente por un administrador', { service: 'registrar cliente' })
 
     if (req.user && req.user.role === 'admin') {
@@ -94,6 +94,39 @@ const registrarClienteAdmin = async(req, res) => {
     }
     return res.status(401).json({ ok: false, msg: 'No se tiene permisos para este proceso' });
 }
+
+const listarClienteConAdmin = async(req, res) => {
+    winston.log('info', 'obtencion de cliente por un administrador', { service: 'obtener cliente' })
+
+    if (req.user && req.user.rol !== 'admin') {
+        return res.status(401).json({ ok: false, msg: 'No se tiene permisos para este proceso' });
+    }
+
+    const id = req.params['id'];
+    if (!id || id == undefined || id == 'undefined') {
+        return res.status(404).json({ ok: false, msg: 'Tiene que tener un id cliente' });
+    }
+
+    try {
+        const clienteDB = await Cliente.findById(id);
+
+        if (!clienteDB) {
+            return res.status(404).json({ ok: false, msg: 'El cliente no existe' });
+        }
+
+        return res.status(200).json({
+            ok: true,
+            data: clienteDB
+        });
+    } catch (error) {
+        winston.log('error', `error => ${error}`, { service: 'registrar cliente' })
+        return res.status(500).json({ ok: false, msg: 'Error inesperado en la carga de usuario' });
+    }
+
+}
+
+
+
 
 const login = async(req, res) => {
     winston.log('info', 'inicio login de cliente', { service: 'login cliente' })
@@ -126,9 +159,10 @@ const login = async(req, res) => {
 }
 
 module.exports = {
+    login,
+    registrar,
     listarTodos,
     listarConFiltro,
-    registrar,
-    registrarClienteAdmin,
-    login
+    registrarClienteConAdmin,
+    listarClienteConAdmin,
 }
