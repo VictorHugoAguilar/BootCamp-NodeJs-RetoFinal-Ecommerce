@@ -95,13 +95,10 @@ const obtenerPortadaProductoPorImg = async(req, res) => {
 
 const obtenerPortadaProductoTituloProducto = async(req, res) => {
     winston.log('info', 'obtener portada de producto por titulo producto', { service: 'portada producto' })
-
     const titulo = req.params['titulo'];
 
     try {
         const productoDB = await Producto.findOne({ titulo: new RegExp(titulo, 'i') });
-
-        console.log(productoDB)
 
         if (!productoDB) {
             winston.log('warn', 'no se ha encontrado producto por ese titulo', { service: 'portada producto' })
