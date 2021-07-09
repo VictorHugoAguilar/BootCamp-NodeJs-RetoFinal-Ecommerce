@@ -2,6 +2,8 @@
 const express = require('express');
 const router = express.Router();
 
+const auth = require('../middlewares/authentificate');
+
 // Controllers
 const {
     listarTodos,
@@ -20,7 +22,7 @@ const {
  */
 
 router.get('/listar', listarTodos);
-router.get('/listar-filtro/:tipo/:filtro?', listarConFiltro);
+router.get('/listar-filtro/:tipo/:filtro?', [auth], listarConFiltro);
 
 router.post('/registrar', registrar);
 router.post('/registrar-con-admin', registrarClienteAdmin);
