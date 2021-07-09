@@ -16,8 +16,27 @@ const obtenerTodos = async(req, res) => {
 
 const registrar = async(req, res) => {
     winston.log('info', 'inicio del registro de administrador', { service: 'registrar administrado' })
-        // TODO: 
-    res.status(200).send({ message: 'hola' })
+    const { email, password } = req.body;
+    try {
+        const existeEmail = await Admin.findOne({ email });
+        if (existeEmail) {
+            return res.status(400).json({ ok: false, msg: 'El usuario ya existe' });
+        }
+        const admin = new Admin(req.body);
+        // encriptar contraseña
+        const salt = bcrypt.genSaltSync();
+        admin.password = bcrypt.hashSync(password, salt);
+        await admin.save();
+        const token = await generateJWT(admin);
+        return res.status(202).json({
+            ok: true,
+            admin,
+            token
+        });
+    } catch (error) {
+        winston.log('error', `error => ${error}`, { service: 'registrar administrador' })
+        return res.status(500).json({ ok: false, msg: 'Error inesperado en la carga del administrador' });
+    }
 }
 
 const login = async(req, res) => {

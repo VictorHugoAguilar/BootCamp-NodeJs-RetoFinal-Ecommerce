@@ -29,7 +29,8 @@ const AdminSchema = Schema({
     },
     rol: {
         type: String,
-        require: false
+        require: false,
+        default: 'admin'
     }
 });
 

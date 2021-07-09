@@ -66,6 +66,35 @@ const registrar = async(req, res) => {
     }
 }
 
+const registrarClienteAdmin = async(req, res) => {
+    winston.log('info', 'inicio del registro de cliente por un administrador', { service: 'registrar cliente' })
+
+    if (req.user && req.user.role === 'admin') {
+        const { email, password } = req.body;
+        try {
+            const existeEmail = await Cliente.findOne({ email });
+            if (existeEmail) {
+                return res.status(400).json({ ok: false, msg: 'El usuario ya existe' });
+            }
+            const cliente = new Cliente(req.body);
+            // encriptar contraseña
+            const salt = bcrypt.genSaltSync();
+            cliente.password = bcrypt.hashSync(password, salt);
+            await cliente.save();
+            const token = await generateJWT(cliente);
+            return res.status(202).json({
+                ok: true,
+                cliente,
+                token
+            });
+        } catch (error) {
+            winston.log('error', `error => ${error}`, { service: 'registrar cliente' })
+            return res.status(500).json({ ok: false, msg: 'Error inesperado en la carga de usuario' });
+        }
+    }
+    return res.status(401).json({ ok: false, msg: 'No se tiene permisos para este proceso' });
+}
+
 const login = async(req, res) => {
     winston.log('info', 'inicio login de cliente', { service: 'login cliente' })
     const { email, password } = req.body;
@@ -100,5 +129,6 @@ module.exports = {
     listarTodos,
     listarConFiltro,
     registrar,
+    registrarClienteAdmin,
     login
 }
