@@ -7,10 +7,12 @@ const { generateJWT } = require('../helpers/jwt');
 
 const obtenerTodos = async(req, res) => {
     winston.log('info', 'inicio obtencion de administradores', { service: 'obtener administrador' })
-        // TODO: 
+
+    const adminDB = await Admin.find();
 
     return res.status(200).json({
         ok: true,
+        data: adminDB,
     });
 }
 

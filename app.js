@@ -38,6 +38,8 @@ app.use((req, res, next) => {
 // Routes Apis
 app.use('/api/clientes', require('./routes/cliente.routes'));
 app.use('/api/admin', require('./routes/admin.routes'));
+app.use('/api/productos', require('./routes/producto.routes'));
+
 
 // Levantamos el server
 app.listen(process.env.PORT, () => {
