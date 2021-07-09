@@ -19,8 +19,12 @@ const {
     obtenerProductoPorId,
     actualizarProducto,
     eliminarProducto,
+    listarInventarioProducto,
+    eliminarInventarioProducto,
+    registrarInventarioProducto,
 } = require('../controllers/producto.controller');
 
+// PRODUCTOS
 // TODO: quitar comentario validación de email.
 router.post('/registrar', [
     auth,
@@ -41,5 +45,10 @@ router.get('/obtener-portada-titulo/:titulo', [], obtenerPortadaProductoTituloPr
 router.get('/obtener-producto-id/:id', [], obtenerProductoPorId);
 router.put('/actualizar-producto/:id', [auth, path], actualizarProducto);
 router.delete('/eliminar-producto/:id', [auth, path], eliminarProducto);
+
+// INVENTARIOS
+router.get('/listar-inventario-producto/:id', [auth], listarInventarioProducto);
+router.delete('/eliminar-inventario-producto/:id', [auth], eliminarInventarioProducto);
+router.post('/registrar-inventario-producto/', [auth], registrarInventarioProducto);
 
 module.exports = router;
