@@ -315,7 +315,7 @@ const registrarDireccionCliente = async(req, res) => {
 }
 
 const obtenerDireccionCliente = async(req, res) => {
-    winston.log('info', 'inicio de obtencion de direccion del cliente logeado', { service: 'registrar direccion cliente' })
+    winston.log('info', 'inicio de obtencion de direccion del cliente logeado', { service: 'obtener direcciones cliente' })
 
     if (!req.user) {
         return res.status(401).json({ ok: false, msg: 'No se tiene permisos para este proceso' });
@@ -331,7 +331,28 @@ const obtenerDireccionCliente = async(req, res) => {
             data: direcciones
         });
     } catch (error) {
-        winston.log('error', `error => ${error}`, { service: 'registrar direccion cliente' })
+        winston.log('error', `error => ${error}`, { service: 'obtener direcciones cliente' })
+        return res.status(500).json({ ok: false, msg: 'Error inesperado en la carga direccion del cliente' });
+    }
+}
+
+const obtenerDireccionClientePrincipal = async(req, res) => {
+    winston.log('info', 'inicio de obtencion de direccion principal del cliente logeado', { service: 'obtener direccion cliente principal' })
+
+    if (!req.user) {
+        return res.status(401).json({ ok: false, msg: 'No se tiene permisos para este proceso' });
+    }
+
+    try {
+        const direcciones = await Direccion.findOne({ cliente: req.user.sub, principal: true })
+            .populate('cliente');
+
+        return res.status(200).json({
+            ok: true,
+            data: direcciones
+        });
+    } catch (error) {
+        winston.log('error', `error => ${error}`, { service: 'obtener direccion cliente principal' })
         return res.status(500).json({ ok: false, msg: 'Error inesperado en la carga direccion del cliente' });
     }
 }
@@ -397,6 +418,7 @@ module.exports = {
     actualizaCliente,
     registrarDireccionCliente,
     obtenerDireccionCliente,
+    obtenerDireccionClientePrincipal,
     actualizarDireccionCliente,
     eliminarDireccionCliente
 }
