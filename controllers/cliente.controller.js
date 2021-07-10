@@ -221,6 +221,64 @@ const eliminarClienteConAdmin = async(req, res) => {
     }
 }
 
+const obtenerCliente = async(req, res) => {
+    winston.log('info', 'inicio de obtención de datos del cliente logeado', { service: 'obtener cliente' })
+
+    if (!req.user) {
+        return res.status(401).json({ ok: false, msg: 'No se tiene permisos para este proceso' });
+    }
+    const idCliente = req.user.sub;
+
+    try {
+        const cliente = await Cliente.findById(idCliente)
+
+        return res.status(200).json({
+            ok: true,
+            data: cliente
+        });
+    } catch (error) {
+        winston.log('error', `error => ${error}`, { service: 'obtener cliente' })
+        return res.status(500).json({ ok: false, msg: 'Error inesperado en la carga de usuario' });
+    }
+}
+
+const actualizaCliente = async(req, res) => {
+    winston.log('info', 'inicio de obtención de datos del cliente logeado', { service: 'obtener cliente' })
+
+    if (!req.user) {
+        return res.status(401).json({ ok: false, msg: 'No se tiene permisos para este proceso' });
+    }
+    const idCliente = req.user.sub;
+    const data = req.body
+    const { password } = data;
+
+    try {
+
+        if (data.password) {
+            // encriptar contraseña
+            const salt = bcrypt.genSaltSync();
+            data.password = bcrypt.hashSync(password, salt);
+
+            const updatedClient = await Cliente.findByIdAndUpdate(idCliente, data, { new: true });
+
+            return res.status(200).json({
+                ok: true,
+                data: updatedClient
+            });
+        } else {
+            const updatedClient = await Cliente.findByIdAndUpdate(idCliente, data, { new: true });
+
+            return res.status(200).json({
+                ok: true,
+                data: updatedClient
+            });
+        }
+    } catch (error) {
+        winston.log('error', `error => ${error}`, { service: 'obtener cliente' })
+        return res.status(500).json({ ok: false, msg: 'Error inesperado en la carga de usuario' });
+    }
+}
+
 module.exports = {
     login,
     registrar,
@@ -230,4 +288,6 @@ module.exports = {
     listarClienteConAdmin,
     actualizarClienteConAdmin,
     eliminarClienteConAdmin,
+    obtenerCliente,
+    actualizaCliente
 }
