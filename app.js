@@ -36,6 +36,7 @@ app.use((req, res, next) => {
 });
 
 // Routes Apis
+app.use('/api/config', require('./routes/config.routes'));
 app.use('/api/clientes', require('./routes/cliente.routes'));
 app.use('/api/admin', require('./routes/admin.routes'));
 app.use('/api/productos', require('./routes/producto.routes'));
