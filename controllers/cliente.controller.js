@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const { generateJWT } = require('../helpers/jwt');
 
 const Cliente = require('../models/cliente.model');
+const Direccion = require('../models/direccion.model');
 
 const login = async(req, res) => {
     winston.log('info', 'inicio login de cliente', { service: 'login cliente' })
@@ -279,6 +280,110 @@ const actualizaCliente = async(req, res) => {
     }
 }
 
+const registrarDireccionCliente = async(req, res) => {
+    winston.log('info', 'inicio de registro de direccion del cliente logeado', { service: 'registrar direccion cliente' })
+
+    if (!req.user) {
+        return res.status(401).json({ ok: false, msg: 'No se tiene permisos para este proceso' });
+    }
+    const data = req.body;
+
+    try {
+        if (data.principal) {
+            const direcciones = await Direccion.find({ cliente: req.user.sub });
+
+            direcciones.forEach(async element => {
+                await Direccion.findByIdAndUpdate({ _id: element._id }, { principal: false });
+            })
+        }
+
+        const createDireccion = {
+            ...data,
+            cliente: req.user.sub
+        }
+
+        const createdDireccion = await Direccion.create(createDireccion);
+
+        return res.status(200).json({
+            ok: true,
+            data: createdDireccion
+        });
+    } catch (error) {
+        winston.log('error', `error => ${error}`, { service: 'registrar direccion cliente' })
+        return res.status(500).json({ ok: false, msg: 'Error inesperado en la carga direccion del cliente' });
+    }
+}
+
+const obtenerDireccionCliente = async(req, res) => {
+    winston.log('info', 'inicio de obtencion de direccion del cliente logeado', { service: 'registrar direccion cliente' })
+
+    if (!req.user) {
+        return res.status(401).json({ ok: false, msg: 'No se tiene permisos para este proceso' });
+    }
+
+    try {
+        const direcciones = await Direccion.find({ cliente: req.user.sub })
+            .populate('cliente')
+            .sort({ createdAt: -1 });
+
+        return res.status(200).json({
+            ok: true,
+            data: direcciones
+        });
+    } catch (error) {
+        winston.log('error', `error => ${error}`, { service: 'registrar direccion cliente' })
+        return res.status(500).json({ ok: false, msg: 'Error inesperado en la carga direccion del cliente' });
+    }
+}
+
+const actualizarDireccionCliente = async(req, res) => {
+    winston.log('info', 'inicio de registro de direccion del cliente logeado', { service: 'registrar direccion cliente' })
+
+    if (!req.user) {
+        return res.status(401).json({ ok: false, msg: 'No se tiene permisos para este proceso' });
+    }
+    const id = req.params['id'];
+
+    try {
+        const direcciones = await Direccion.find({ cliente: req.user.sub });
+
+        direcciones.forEach(async element => {
+            await Direccion.findByIdAndUpdate({ _id: element._id }, { principal: false });
+        })
+
+        const createdDireccion = await Direccion.findByIdAndUpdate({ _id: id }, { principal: true }, { new: true });
+
+        return res.status(200).json({
+            ok: true,
+            data: createdDireccion
+        });
+    } catch (error) {
+        winston.log('error', `error => ${error}`, { service: 'registrar direccion cliente' })
+        return res.status(500).json({ ok: false, msg: 'Error inesperado en la carga direccion del cliente' });
+    }
+}
+
+const eliminarDireccionCliente = async(req, res) => {
+    winston.log('info', 'inicio de eliminar de direccion del cliente logeado', { service: 'eliminar direccion cliente' })
+
+    if (!req.user) {
+        return res.status(401).json({ ok: false, msg: 'No se tiene permisos para este proceso' });
+    }
+    const id = req.params['id'];
+
+    try {
+        const deletedDireccion = await Direccion.findByIdAndDelete({ _id: id });
+
+        return res.status(200).json({
+            ok: true,
+            data: deletedDireccion
+        });
+    } catch (error) {
+        winston.log('error', `error => ${error}`, { service: 'eliminar direccion cliente' })
+        return res.status(500).json({ ok: false, msg: 'Error inesperado en la carga direccion del cliente' });
+    }
+}
+
 module.exports = {
     login,
     registrar,
@@ -289,5 +394,9 @@ module.exports = {
     actualizarClienteConAdmin,
     eliminarClienteConAdmin,
     obtenerCliente,
-    actualizaCliente
+    actualizaCliente,
+    registrarDireccionCliente,
+    obtenerDireccionCliente,
+    actualizarDireccionCliente,
+    eliminarDireccionCliente
 }
