@@ -11,7 +11,7 @@ const ProductoSchema = Schema({
         require: true
     },
     galeria: [{
-        type: String,
+        type: Object,
         require: false
     }],
     portada: {
