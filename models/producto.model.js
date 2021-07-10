@@ -53,6 +53,15 @@ const ProductoSchema = Schema({
         default: 'edicion',
         require: true
     },
+    variedad: [{
+        type: Object,
+        require: false
+    }],
+    titulo_variedad: {
+        type: String,
+        require: false
+    },
+
     createdAt: {
         type: Date,
         default: Date.now,

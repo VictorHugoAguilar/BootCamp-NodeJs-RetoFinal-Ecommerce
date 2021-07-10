@@ -50,3 +50,4 @@ Thumbs.db
 # files logs
 /server/logs
 /uploads/productos
+/uploads/config
