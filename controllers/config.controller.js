@@ -41,8 +41,6 @@ const obtenerConfiguracion = async(req, res) => {
 
 }
 
-
-
 const crearConfiguracion = async(req, res) => {
     winston.log('info', 'inicio de registro de configuracion', { service: 'crear configuracion' })
 
@@ -63,6 +61,7 @@ const crearConfiguracion = async(req, res) => {
                 ...data
             }
             configToCreate.logo = portada_name;
+            configToCreate.categorias = JSON.parse(data.categorias);
 
             const createdConfig = await Config.create(configToCreate);
             console.log(createdConfig)
@@ -112,6 +111,7 @@ const actualizarConfiguracion = async(req, res) => {
             }
 
             configUpd.logo = portada_name;
+            configUpd.categorias = JSON.parse(data.categorias);
 
             const updatedConfig = await Config.findByIdAndUpdate(id, configUpd, { new: true });
 
@@ -150,9 +150,57 @@ const actualizarConfiguracion = async(req, res) => {
     }
 }
 
+const obtenerLogoPorImg = async(req, res) => {
+    winston.log('info', 'obtener logo de configuración por img', { service: 'portada producto' })
+
+    const img = req.params['img'];
+    fs.stat(`./uploads/config/${img}`, (err) => {
+        if (!err) {
+            const path_img = `./uploads/config/${img}`;
+            return res.status(200).sendFile(path.resolve(path_img));
+        } else {
+            winston.log('warn', 'no se ha encontrado logo de la configuración ese nombre de imagen', { service: 'logo configuración' })
+            const path_img = `./uploads/notImage.gif`;
+            return res.status(200).sendFile(path.resolve(path_img));
+        }
+    })
+}
+
+const obtenerConfiguracionPublico = async(req, res) => {
+    //const id = req.params['id'];
+    // ID CONFIGURACIÓN GLOBAL DE LA APP LO ALMACENAMOS EN LAS VARIABLES GLOBALES
+    const id = process.env.ID_CONFIG_APP
+
+    try {
+        const config = await Config.findById(id);
+
+        if (!config) {
+            return res.status(404).json({
+                ok: true,
+                msg: `No se ha encontrado configuración para id ${id}`,
+                data: []
+            });
+        }
+
+        return res.status(200).json({
+            ok: true,
+            data: config
+        });
+
+    } catch (error) {
+        winston.log('error', `error ${error}`, { service: 'obtener configuración público' });
+        return res.status(404).json({
+            ok: false,
+            msg: 'No se ha podido procesar la petición'
+        });
+    }
+
+}
 
 module.exports = {
     obtenerConfiguracion,
     crearConfiguracion,
     actualizarConfiguracion,
+    obtenerLogoPorImg,
+    obtenerConfiguracionPublico
 }
