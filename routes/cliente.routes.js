@@ -22,6 +22,7 @@ const {
     obtenerDireccionCliente,
     actualizarDireccionCliente,
     eliminarDireccionCliente,
+    obtenerDireccionClientePrincipal,
 } = require('../controllers/cliente.controller');
 
 
@@ -80,6 +81,7 @@ router.delete('/eliminar-cliente-con-admin/:id', [
 // DIRECCIONES CLIENTE
 router.post('/registrar-direccion-cliente', [auth], registrarDireccionCliente);
 router.get('/obtener-direccion-cliente', [auth], obtenerDireccionCliente);
+router.get('/obtener-direccion-cliente-principal', [auth], obtenerDireccionClientePrincipal);
 router.put('/actualizar-direccion-cliente-principal/:id', [auth], actualizarDireccionCliente);
 router.delete('/eliminar-direccion-cliente/:id', [auth], eliminarDireccionCliente);
 
