@@ -25,6 +25,11 @@ const {
     registrarVariedadDeProducto,
     registrarGaleriaDeProducto,
     eliminarImagenDeGaleriaDeProducto,
+    listarProductosPorTituloPublico,
+    listarProductosCategoriaPublico,
+    listarProductosMasVendidos,
+    listarProductosPrecio,
+    listarProductosPorTipoYOrden,
 } = require('../controllers/producto.controller');
 
 // PRODUCTOS
@@ -60,5 +65,13 @@ router.put('/registrar-variedad/:id', [auth], registrarVariedadDeProducto);
 // GALERIA
 router.put('/registrar-galeria/:id', [auth, path], registrarGaleriaDeProducto)
 router.put('/eliminar-imagen-galeria/:id', [auth], eliminarImagenDeGaleriaDeProducto)
+
+// METODOS PUBLICOS PARA CLIENTES
+router.get('/listar-productos-filtrados-titulo/:filtro', listarProductosPorTituloPublico)
+router.get('/listar-productos-filtrados-categoria/:filtro', listarProductosCategoriaPublico)
+router.get('/listar-productos-mas-vendido/', listarProductosMasVendidos)
+router.get('/listar-productos-orden-precio/:orden', listarProductosPrecio)
+router.post('/listar-productos-tipo-orden/', listarProductosPorTipoYOrden)
+
 
 module.exports = router;
