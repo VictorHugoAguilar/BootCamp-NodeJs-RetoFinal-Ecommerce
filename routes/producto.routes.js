@@ -22,6 +22,9 @@ const {
     listarInventarioProducto,
     eliminarInventarioProducto,
     registrarInventarioProducto,
+    registrarVariedadDeProducto,
+    registrarGaleriaDeProducto,
+    eliminarImagenDeGaleriaDeProducto,
 } = require('../controllers/producto.controller');
 
 // PRODUCTOS
@@ -50,5 +53,12 @@ router.delete('/eliminar-producto/:id', [auth, path], eliminarProducto);
 router.get('/listar-inventario-producto/:id', [auth], listarInventarioProducto);
 router.delete('/eliminar-inventario-producto/:id', [auth], eliminarInventarioProducto);
 router.post('/registrar-inventario-producto/', [auth], registrarInventarioProducto);
+
+// VARIEDADES
+router.put('/registrar-variedad/:id', [auth], registrarVariedadDeProducto);
+
+// GALERIA
+router.put('/registrar-galeria/:id', [auth, path], registrarGaleriaDeProducto)
+router.put('/eliminar-imagen-galeria/:id', [auth], eliminarImagenDeGaleriaDeProducto)
 
 module.exports = router;

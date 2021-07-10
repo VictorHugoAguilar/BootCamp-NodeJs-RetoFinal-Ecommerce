@@ -2,9 +2,11 @@
 const winston = require('../logs/winston');
 const fs = require('fs');
 const path = require('path');
+const { v4: uuidv4 } = require('uuid');
 
 const Producto = require('../models/producto.model');
 const Inventario = require('../models/inventario.model');
+const { JsonWebTokenError } = require('jsonwebtoken');
 
 const registrarProductoConAdmin = async(req, res) => {
     winston.log('info', 'inicio del registro de producto con administrador', { service: 'registrar producto' })
@@ -396,6 +398,125 @@ const registrarInventarioProducto = async(req, res) => {
     }
 }
 
+const registrarVariedadDeProducto = async(req, res) => {
+    winston.log('info', 'inicio de registro de variedad de producto', { service: 'inventario producto' })
+
+    if (req.user && req.user.rol !== 'admin') {
+        winston.log('error', 'No se tiene permisos para este proceso', { service: 'eliminar producto' })
+        return res.status(401).json({ ok: false, msg: 'No se tiene permisos para este proceso' });
+    }
+    const id = req.params['id'];
+    const data = req.body;
+
+    const productoUpd = {
+        titulo_variedad: data.titulo_variedad,
+        variedad: data.variedad
+    };
+
+    try {
+        const updateProduct = await Producto.findByIdAndUpdate(id, productoUpd, { new: true });
+
+        return res.status(200).json({
+            ok: true,
+            data: updateProduct
+        })
+    } catch (error) {
+        return res.status(404).json({
+            ok: false,
+            msg: `No se ha encontrado producto para id de producto ${id}`,
+            data: []
+        });
+    }
+}
+
+const registrarGaleriaDeProducto = async(req, res) => {
+    winston.log('info', 'inicio de registro de galeria de producto', { service: 'galeria de producto' })
+
+    if (req.user && req.user.rol !== 'admin') {
+        winston.log('error', 'No se tiene permisos para este proceso', { service: 'galeria de producto' })
+        return res.status(401).json({ ok: false, msg: 'No se tiene permisos para este proceso' });
+    }
+    const id = req.params['id'];
+    const data = req.body;
+
+    try {
+        if ((req.files || Object.keys(req.files).length !== 0) && req.files.imagen.path) {
+            const img_path = req.files.imagen.path;
+            const name = img_path.split('\/');
+            const imagen_name = name[2];
+
+            console.log(imagen_name)
+
+            const updateProduct = await Producto.findByIdAndUpdate(id, {
+                $push: {
+                    galeria: {
+                        imagen: imagen_name,
+                        _id: uuidv4()
+                    }
+                }
+            }, { new: true });
+
+            return res.status(200).json({
+                ok: true,
+                data: updateProduct
+            })
+        }
+    } catch (error) {
+        return res.status(404).json({
+            ok: false,
+            msg: `No se ha encontrado producto para id de producto ${id}`,
+            data: []
+        });
+    }
+}
+
+const eliminarImagenDeGaleriaDeProducto = async(req, res) => {
+    winston.log('info', 'inicio de eliminación de imagen de galeria de producto', { service: 'galeria de producto' })
+
+    if (req.user && req.user.rol !== 'admin') {
+        winston.log('error', 'No se tiene permisos para este proceso', { service: 'galeria de producto' })
+        return res.status(401).json({ ok: false, msg: 'No se tiene permisos para este proceso' });
+    }
+    const id = req.params['id'];
+    const data = req.body;
+
+    try {
+        const updateProduct = await Producto.findByIdAndUpdate(id, {
+            $pull: {
+                galeria: {
+                    _id: data._id
+                }
+            }
+        }, { new: true });
+
+        if (data.imagen) {
+            // Comprobamos el fichero almacenado anteriormente si existe
+            fs.stat(`./uploads/productos/${data.imagen}`, (err) => {
+                if (!err) {
+                    // Eliminamos el fichero anterior si existe
+                    fs.unlink(`./uploads/productos/${data.imagen}`, (error) => {
+                        if (error) {
+                            throw error;
+                        }
+                    })
+                }
+            })
+        }
+
+        return res.status(200).json({
+            ok: true,
+            data: updateProduct
+        })
+
+    } catch (error) {
+        return res.status(404).json({
+            ok: false,
+            msg: `No se ha encontrado producto para id de producto ${id}`,
+            data: []
+        });
+    }
+}
+
 module.exports = {
     registrarProductoConAdmin,
     listarProductos,
@@ -407,4 +528,7 @@ module.exports = {
     listarInventarioProducto,
     eliminarInventarioProducto,
     registrarInventarioProducto,
+    registrarVariedadDeProducto,
+    registrarGaleriaDeProducto,
+    eliminarImagenDeGaleriaDeProducto
 }
