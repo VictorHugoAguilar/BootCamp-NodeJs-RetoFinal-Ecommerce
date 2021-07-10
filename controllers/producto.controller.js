@@ -517,6 +517,114 @@ const eliminarImagenDeGaleriaDeProducto = async(req, res) => {
     }
 }
 
+const listarProductosPorTituloPublico = async(req, res) => {
+    winston.log('info', 'inicio de listar productos por titulo', { service: 'listar productos' })
+
+    const filtro = req.params['filtro'];
+    const productos = await Producto.find({ titulo: new RegExp(filtro, 'i') });
+
+    return res.status(200).json({
+        ok: true,
+        data: productos
+    })
+}
+
+const listarProductosCategoriaPublico = async(req, res) => {
+    winston.log('info', 'inicio de listar productos por categoria', { service: 'listar productos' })
+
+    const filtro = req.params['filtro'];
+    const productos = await Producto.find({ categoria: new RegExp(filtro, 'i') });
+
+    return res.status(200).json({
+        ok: true,
+        data: productos
+    })
+}
+
+const listarProductosMasVendidos = async(req, res) => {
+    winston.log('info', 'inicio de listar productos más vendidos', { service: 'listar productos' })
+
+    const productos = await Producto.find()
+        .sort({ nventas: -1 });
+
+    return res.status(200).json({
+        ok: true,
+        data: productos
+    })
+}
+
+const listarProductosPrecio = async(req, res) => {
+    winston.log('info', 'inicio de listar productos por precio y orden', { service: 'listar productos' })
+
+    const orden = req.params['orden'];
+    let productos;
+    if (orden.toUpperCase() == 'MAYOR') {
+        productos = await Producto.find()
+            .sort({ precio: -1 });
+    }
+    if (orden.toUpperCase() == 'MENOR') {
+        productos = await Producto.find()
+            .sort({ precio: 1 });
+    }
+
+    return res.status(200).json({
+        ok: true,
+        data: productos
+    })
+}
+
+const listarProductosPorTipoYOrden = async(req, res) => {
+    winston.log('info', 'inicio de listar productos por tipo y orden', { service: 'listar productos' })
+
+    const { tipo, orden } = req.body;
+    let ordenNum;
+    let productos;
+
+    if (orden && orden.toUpperCase() == "MAYOR") {
+        ordenNum = -1
+    } else {
+        ordenNum = 1
+    }
+
+    if (!tipo) {
+        return res.status(200).json({
+            ok: true,
+            data: []
+        })
+    }
+
+    switch (tipo) {
+        case 'titulo':
+            productos = await Producto.find()
+                .sort({ titulo: ordenNum });
+            break;
+        case 'precio':
+            productos = await Producto.find()
+                .sort({ precio: ordenNum });
+            break;
+        case 'stock':
+            productos = await Producto.find()
+                .sort({ stock: ordenNum });
+            break;
+        case 'categoria':
+            productos = await Producto.find()
+                .sort({ categoria: ordenNum });
+            break;
+        case 'createdAt':
+            productos = await Producto.find()
+                .sort({ createdAt: ordenNum });
+            break;
+    }
+
+
+    return res.status(200).json({
+        ok: true,
+        data: productos
+    })
+}
+
+
+
 module.exports = {
     registrarProductoConAdmin,
     listarProductos,
@@ -530,5 +638,10 @@ module.exports = {
     registrarInventarioProducto,
     registrarVariedadDeProducto,
     registrarGaleriaDeProducto,
-    eliminarImagenDeGaleriaDeProducto
+    eliminarImagenDeGaleriaDeProducto,
+    listarProductosPorTituloPublico,
+    listarProductosCategoriaPublico,
+    listarProductosMasVendidos,
+    listarProductosPrecio,
+    listarProductosPorTipoYOrden
 }
