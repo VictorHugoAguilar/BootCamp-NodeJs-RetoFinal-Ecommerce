@@ -30,6 +30,7 @@ const {
     listarProductosMasVendidos,
     listarProductosPrecio,
     listarProductosPorTipoYOrden,
+    verDetalleProductoPorSlug,
 } = require('../controllers/producto.controller');
 
 // PRODUCTOS
@@ -72,6 +73,7 @@ router.get('/listar-productos-filtrados-categoria/:filtro', listarProductosCateg
 router.get('/listar-productos-mas-vendido/', listarProductosMasVendidos)
 router.get('/listar-productos-orden-precio/:orden', listarProductosPrecio)
 router.post('/listar-productos-tipo-orden/', listarProductosPorTipoYOrden)
+router.get('/listar-productos-detalle/:slug', verDetalleProductoPorSlug)
 
 
 module.exports = router;

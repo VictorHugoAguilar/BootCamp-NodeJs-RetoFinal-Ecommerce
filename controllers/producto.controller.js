@@ -521,7 +521,8 @@ const listarProductosPorTituloPublico = async(req, res) => {
     winston.log('info', 'inicio de listar productos por titulo', { service: 'listar productos' })
 
     const filtro = req.params['filtro'];
-    const productos = await Producto.find({ titulo: new RegExp(filtro, 'i') });
+    const productos = await Producto.find({ titulo: new RegExp(filtro, 'i') })
+        .sort({ createdAt: -1 });
 
     return res.status(200).json({
         ok: true,
@@ -623,7 +624,17 @@ const listarProductosPorTipoYOrden = async(req, res) => {
     })
 }
 
+const verDetalleProductoPorSlug = async(req, res) => {
+    winston.log('info', 'inicio de obtener detalle de producto por slug', { service: 'listar productos' })
 
+    const slug = req.params['slug'];
+    const producto = await Producto.findOne({ slug: slug });
+
+    return res.status(200).json({
+        ok: true,
+        data: producto
+    });
+}
 
 module.exports = {
     registrarProductoConAdmin,
@@ -643,5 +654,6 @@ module.exports = {
     listarProductosCategoriaPublico,
     listarProductosMasVendidos,
     listarProductosPrecio,
-    listarProductosPorTipoYOrden
+    listarProductosPorTipoYOrden,
+    verDetalleProductoPorSlug
 }
