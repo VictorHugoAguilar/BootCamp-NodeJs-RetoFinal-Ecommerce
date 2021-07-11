@@ -1,6 +1,65 @@
 # Ecommerce Online BackEnd
 
-Backend de app ecommerce
+Backend de app ecommerce.
+
+# Endpoint
+
+* Admin:
+        - Registro
+        - Obtencion
+        - Login    
+* Clientes:
+        - Registro
+        - Login
+        - Obtener todos
+        - Obtener con filtro
+        - Obtener por id (solo rol admin)
+        - Actualizar cliente 
+        - Actualizar cliente por admin (solo rol admin)
+        - Registrar cliente por admin (solo rol admin)
+        - Obtener cliente actual por token
+        - Obtencion de direción cliente
+        - Obtener dirección principal
+* Productos:
+        - Listar productos
+        - Listar productos por titulo
+        - Listar productos por categoria
+        - Listar productos mayor venta
+        - Listar productos orden precio
+        - Listar producto por tipo y orden
+        - Obtener detalle de producto
+        - Listar inventario de producto
+        - Obtener portada producto por nombre de imagen
+        - Obtener portada producto por titulo de producto
+        - Actualizar producto (solo rol admin)
+        - Eliminar producto (solo rol admin)
+        - Registrar inventario (solo rol admin)
+        - Eliminar inventario (solo rol admin)
+        - Registrar variedad producto (solo rol admin)
+        - Registrar galeria de producto (solo rol admin)
+        - Eliminar imagen de galeria (solo rol admin)
+* Cupones:
+        - Registrar cuppón (solo rol admin)
+        - Listar cupón por código
+        - Listar cupón por id
+        - Actualizar cupón (solo rol admin)
+        - Eliminar cupón (solo rol admin)
+* Config:
+        - Crear configuración
+        - Modificar configuración
+        - Obtener configuración publica
+        - Obtener configuracion por id (solo rol admin)
+        - Obtener 
+* Carrito:
+        - Añadir producto a carrito
+        - Obtener carrito con productos
+        - Eliminar producto de carrito
+* Compras-Ventas:
+        - Registra compra
+        - Obtener Compras cliente
+        - Obtener Detalles compra cliente
+        - Obtener Ventas totales (solo rol admin)
+        - Obtener Ventas por rango fechas(solo rol admin)
 
 ## Requisitos para levantar
 
