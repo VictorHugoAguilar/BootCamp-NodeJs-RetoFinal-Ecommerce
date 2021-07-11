@@ -2,71 +2,21 @@
 const { Schema, model } = require('mongoose');
 
 const ProductoSchema = Schema({
-    titulo: {
-        type: String,
-        require: true
-    },
-    slug: {
-        type: String,
-        require: true
-    },
-    galeria: [{
-        type: Object,
-        require: false
-    }],
-    portada: {
-        type: String,
-        require: false
-    },
-    precio: {
-        type: Number,
-        require: false
-    },
-    descripcion: {
-        type: String,
-        require: false
-    },
-    contenido: {
-        type: String,
-        require: false
-    },
-    stock: {
-        type: Number,
-        require: false
-    },
-    nventas: {
-        type: Number,
-        default: 0,
-        require: true
-    },
-    npuntos: {
-        type: Number,
-        default: 0,
-        require: true
-    },
-    categoria: {
-        type: String,
-        require: false
-    },
-    estado: {
-        type: String,
-        default: 'edicion',
-        require: true
-    },
-    variedad: [{
-        type: Object,
-        require: false
-    }],
-    titulo_variedad: {
-        type: String,
-        require: false
-    },
-
-    createdAt: {
-        type: Date,
-        default: Date.now,
-        require: true
-    }
+    titulo: { type: String, require: true },
+    slug: { type: String, require: true },
+    galeria: [{ type: Object, require: false }],
+    portada: { type: String, require: false },
+    precio: { type: Number, require: false },
+    descripcion: { type: String, require: false },
+    contenido: { type: String, require: false },
+    stock: { type: Number, require: false },
+    nventas: { type: Number, default: 0, require: true },
+    npuntos: { type: Number, default: 0, require: true },
+    categoria: { type: String, require: false },
+    estado: { type: String, default: 'edicion', require: true },
+    variedad: [{ type: Object, require: false }],
+    titulo_variedad: { type: String, require: false },
+    createdAt: { type: Date, default: Date.now, require: true }
 }, { collection: 'producto' });
 
 ProductoSchema.method('toJSON', function() {
