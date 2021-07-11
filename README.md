@@ -1,4 +1,4 @@
-# Ecommerce Online Back-End
+# Ecommerce Online BackEnd
 
 Backend de app ecommerce
 
@@ -76,4 +76,6 @@ Una vez que se tiene levantado el servidor de mongodb levantamos la aplicación 
 `````
 npm start
 `````
+
+@Author: Victor Hugo Aguilar Aguilar
 
