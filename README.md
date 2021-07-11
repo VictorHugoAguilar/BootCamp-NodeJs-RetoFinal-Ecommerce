@@ -4,11 +4,11 @@ Backend de app ecommerce.
 
 # Endpoint
 
-# Admin:
+## Admin:
         * Registro
         * Obtencion
         * Login    
-# Clientes:
+## Clientes:
         * Registro
         * Login
         * Obtener todos
@@ -20,7 +20,7 @@ Backend de app ecommerce.
         * Obtener cliente actual por token
         * Obtencion de direción cliente
         * Obtener dirección principal
-# Productos:
+## Productos:
         * Listar productos
         * Listar productos por titulo
         * Listar productos por categoria
@@ -38,30 +38,30 @@ Backend de app ecommerce.
         * Registrar variedad producto (solo rol admin)
         * Registrar galeria de producto (solo rol admin)
         * Eliminar imagen de galeria (solo rol admin)
-# Cupones:
+## Cupones:
         * Registrar cuppón (solo rol admin)
         * Listar cupón por código
         * Listar cupón por id
         * Actualizar cupón (solo rol admin)
         * Eliminar cupón (solo rol admin)
-# Config:
+## Config:
         * Crear configuración
         * Modificar configuración
         * Obtener configuración publica
         * Obtener configuracion por id (solo rol admin)
         * Obtener 
-# Carrito:
+## Carrito:
         * Añadir producto a carrito
         * Obtener carrito con productos
         * Eliminar producto de carrito
-# Compras*Ventas:
+## Compras*Ventas:
         * Registra compra
         * Obtener Compras cliente
         * Obtener Detalles compra cliente
         * Obtener Ventas totales (solo rol admin)
         * Obtener Ventas por rango fechas(solo rol admin)
 
-## Requisitos para levantar
+# Requisitos para levantar
 
 Es necesario configurar una variable de entorno que cogera los datos necesarios la variable tiene que llamarse .env en el directorio raiz.
 
