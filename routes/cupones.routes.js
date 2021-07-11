@@ -5,9 +5,17 @@ const { check } = require('express-validator');
 const { validarCampos } = require('../middlewares/validar-campos');
 const auth = require('../middlewares/authentificate');
 
-// Controllers
-const { registrarCupon, buscarCuponesPorCodigo, buscarCuponPorId, actualizarCupon, eliminarCupon } = require('../controllers/cupones.controller');
+// CONTROLLERS
+const {
+    registrarCupon,
+    buscarCuponesPorCodigo,
+    buscarCuponPorId,
+    actualizarCupon,
+    eliminarCupon
+} = require('../controllers/cupones.controller');
 
+// ENDPOINTS
+// CUPONES
 router.post('/registrar-cupon', [auth], registrarCupon);
 router.get('/buscar-cupon-codigo/:codigo', [auth], buscarCuponesPorCodigo);
 router.get('/buscar-cupon-id/:id', [auth], buscarCuponPorId);
