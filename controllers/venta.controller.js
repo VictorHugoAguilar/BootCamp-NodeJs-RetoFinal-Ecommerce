@@ -123,6 +123,7 @@ const obtenerDetalleComprasCliente = async(req, res) => {
     try {
 
         const ventaDB = await Venta.findById({ _id: idVenta })
+            .populate('cliente')
             .populate('direccion');
 
         if (!ventaDB) {
@@ -151,7 +152,6 @@ const obtenerDetalleComprasCliente = async(req, res) => {
     }
 }
 
-
 const obtenerVentasAdmin = async(req, res) => {
     winston.log('info', 'inicio de obtención de venta para administrador', { service: 'obtención de ventas' })
 
@@ -160,7 +160,9 @@ const obtenerVentasAdmin = async(req, res) => {
     }
 
     try {
-        const ventasTotales = await Venta.find().populate('cliente').sort({ createdAt: -1 });
+        const ventasTotales = await Venta.find()
+            .populate('cliente')
+            .sort({ createdAt: -1 });
 
         return res.status(200).json({ ok: true, data: ventasTotales });
 

@@ -10,7 +10,7 @@ const path = multipart({
     uploadDir: './uploads/productos'
 });
 
-// Controllers
+// CONTROLLERS
 const {
     registrarProductoConAdmin,
     listarProductos,
@@ -33,22 +33,20 @@ const {
     verDetalleProductoPorSlug,
 } = require('../controllers/producto.controller');
 
+// ENDPOINTS
 // PRODUCTOS
-// TODO: quitar comentario validación de email.
 router.post('/registrar', [
     auth,
     path,
-    //check('email', 'El email es obligatorio').isEmail(),
-    //check('password', 'El password es obligatorio').not().isEmpty(),
-    //check('nombre', 'El nombre es obligatorio').not().isEmpty(),
-    //check('apellidos', 'El apellidos es obligatorio').not().isEmpty(),
-    //validarCampos
+    check('titulo', 'El titulo es obligatorio').not().isEmpty(),
+    check('descripcion', 'La descripcion es obligatoria').not().isEmpty(),
+    check('contenido', 'El contenido es obligatorio').not().isEmpty(),
+    check('precio', 'El precio es obligatorio').isNumeric().not().isEmpty(),
+    validarCampos
 ], registrarProductoConAdmin);
-
 router.get('/listar/:filtro', [
     auth
 ], listarProductos);
-
 router.get('/obtener-portada/:img', [], obtenerPortadaProductoPorImg);
 router.get('/obtener-portada-titulo/:titulo', [], obtenerPortadaProductoTituloProducto);
 router.get('/obtener-producto-id/:id', [], obtenerProductoPorId);

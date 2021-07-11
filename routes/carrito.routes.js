@@ -6,11 +6,23 @@ const { check } = require('express-validator');
 const auth = require('../middlewares/authentificate');
 const { validarCampos } = require('../middlewares/validar-campos');
 
-// Controllers
-const { anadirProductoCarrito, obtenerProductosEnCarrito, eliminarProductoDeCarrito } = require('../controllers/carrito.controller');
+// CONTROLLERS
+const {
+    anadirProductoCarrito,
+    obtenerProductosEnCarrito,
+    eliminarProductoDeCarrito
+} = require('../controllers/carrito.controller');
 
-// End-Points
-router.post('/registra-producto-carrito/', [auth], anadirProductoCarrito);
+// ENDPOINTS
+// CARRITO
+router.post('/registra-producto-carrito/', [
+        auth,
+        check('producto', 'El producto es obligatorio').not().isEmpty(),
+        check('cantidad', 'La cantidad es obligatoria').isNumeric().not().isEmpty(),
+        check('variedad', 'La variedad es obligatoria').not().isEmpty(),
+        validarCampos
+    ],
+    anadirProductoCarrito);
 router.get('/obtener-carrito-cliente/', [auth], obtenerProductosEnCarrito);
 router.delete('/eliminar-producto-carrito/:id', [auth], eliminarProductoDeCarrito);
 

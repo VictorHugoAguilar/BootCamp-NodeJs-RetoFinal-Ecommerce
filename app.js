@@ -2,11 +2,9 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
-
 const winston = require('./logs/winston');
-const morgan = require('morgan')
+const morgan = require('morgan');
+
 
 const PORT = process.env.PORT || 3003;
 const { dbConnection } = require('./database/config');
@@ -43,7 +41,6 @@ app.use('/api/productos', require('./routes/producto.routes'));
 app.use('/api/cupones', require('./routes/cupones.routes'));
 app.use('/api/carrito', require('./routes/carrito.routes'));
 app.use('/api/venta', require('./routes/venta.routes'));
-
 
 // Levantamos el server
 app.listen(process.env.PORT, () => {

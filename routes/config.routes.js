@@ -9,9 +9,17 @@ const { check } = require('express-validator');
 const auth = require('../middlewares/authentificate');
 const { validarCampos } = require('../middlewares/validar-campos');
 
-// Controllers
-const { actualizarConfiguracion, crearConfiguracion, obtenerConfiguracion, obtenerLogoPorImg, obtenerConfiguracionPublico } = require('../controllers/config.controller');
+// CONTROLLERS
+const {
+    actualizarConfiguracion,
+    crearConfiguracion,
+    obtenerConfiguracion,
+    obtenerLogoPorImg,
+    obtenerConfiguracionPublico
+} = require('../controllers/config.controller');
 
+// ENDPOINT
+// CONFIG APP
 router.get('/obtener-config-publico/', obtenerConfiguracionPublico);
 router.get('/obtener-config/:id', [auth], obtenerConfiguracion);
 router.post('/registrar-config/', [auth, path], crearConfiguracion);
