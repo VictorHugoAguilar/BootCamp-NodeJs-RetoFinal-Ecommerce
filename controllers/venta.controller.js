@@ -1,5 +1,6 @@
 'use strict'
 const winston = require('../logs/winston');
+var mongodb = require('mongodb');
 
 const { generarSecuencia } = require('../helpers/utils');
 
@@ -49,15 +50,20 @@ const registrarCompraCliente = async(req, res) => {
         data.estado = 'Procesando';
 
         const createdVenta = await Venta.create(data);
-        var detalleVenta = [];
+        let detalleVenta = [];
 
         detalles.forEach(async producto => {
             producto.cliente = clienteCompra;
+            producto.venta = createdVenta._id;
+            detalleVenta.push(producto);
+
             const detalleVentaDb = await Dventa.create(producto);
-            detalleVenta.push(JSON.stringify(detalleVentaDb));
+
+            if (!detalleVentaDb) {
+                return;
+            }
 
             const productoDatabase = await Producto.findById({ _id: producto.producto });
-            console.log(productoDatabase)
             const newStock = productoDatabase.stock - producto.cantidad;
             await Producto.findByIdAndUpdate(producto.producto, {
                     stock: newStock
@@ -65,7 +71,6 @@ const registrarCompraCliente = async(req, res) => {
                 // TODO: quitar comentarios
                 //await Carrito.remove({cliente: producto.cliente});
         })
-
 
         return res.status(200).json({
             ok: true,
@@ -82,16 +87,22 @@ const registrarCompraCliente = async(req, res) => {
     }
 }
 
-/*
-const baseComun = async(req, res) => {
-    winston.log('info', 'inicio de registro de compra del cliente logeado', { service: 'registrar compra cliente' })
+const obtenerComprasCliente = async(req, res) => {
+    winston.log('info', 'inicio de obtención de compras del cliente logeado', { service: 'obtener compra cliente' })
 
     if (!req.user) {
         return res.status(401).json({ ok: false, msg: 'No se tiene permisos para este proceso' });
     }
-
+    const clienteActual = req.user.sub;
     try {
 
+        const ventasDB = await Venta.find({ cliente: clienteActual })
+            .sort({ createdAt: -1 });
+
+        return res.status(200).json({
+            ok: true,
+            data: ventasDB
+        })
 
     } catch (error) {
         winston.log('error', `error ${error}`, { service: 'registrar compra cliente' });
@@ -101,9 +112,107 @@ const baseComun = async(req, res) => {
         });
     }
 }
-*/
 
+const obtenerDetalleComprasCliente = async(req, res) => {
+    winston.log('info', 'inicio de obtención de compras del cliente logeado', { service: 'obtener compra cliente' })
+
+    if (!req.user) {
+        return res.status(401).json({ ok: false, msg: 'No se tiene permisos para este proceso' });
+    }
+    const idVenta = req.params['id'];
+    try {
+
+        const ventaDB = await Venta.findById({ _id: idVenta })
+            .populate('direccion');
+
+        if (!ventaDB) {
+            return res.status(404).json({
+                ok: false,
+                msg: `No se ha encontrado venta con el id ${idVenta}`,
+                data: ventasDB
+            })
+        }
+
+        const detalleVentaDB = await Dventa.find({ venta: ventaDB._id })
+            .populate('producto');
+
+        return res.status(200).json({
+            ok: true,
+            venta: ventaDB,
+            detalle: detalleVentaDB
+        })
+
+    } catch (error) {
+        winston.log('error', `error ${error}`, { service: 'registrar compra cliente' });
+        return res.status(404).json({
+            ok: false,
+            msg: 'No se ha podido procesar la petición'
+        });
+    }
+}
+
+
+const obtenerVentasAdmin = async(req, res) => {
+    winston.log('info', 'inicio de obtención de venta para administrador', { service: 'obtención de ventas' })
+
+    if (!req.user || req.user.rol !== 'admin') {
+        return res.status(401).json({ ok: false, msg: 'No se tiene permisos para este proceso' });
+    }
+
+    try {
+        const ventasTotales = await Venta.find().populate('cliente').sort({ createdAt: -1 });
+
+        return res.status(200).json({ ok: true, data: ventasTotales });
+
+    } catch (error) {
+        winston.log('error', `error ${error}`, { service: 'obtención de ventas' });
+        return res.status(404).json({
+            ok: false,
+            msg: 'No se ha podido procesar la petición'
+        });
+    }
+}
+
+const obtenerVentasRangoAdmin = async(req, res) => {
+    winston.log('info', 'inicio de obtención de venta por rango de fechas para administrador', { service: 'obtención de ventas' })
+
+    if (!req.user) {
+        return res.status(401).json({ ok: false, msg: 'No se tiene permisos para este proceso' });
+    }
+
+    try {
+        let ventas = [];
+        let desde = req.params['desde'];
+        let hasta = req.params['hasta'];
+
+        if (desde == 'undefined' || desde == undefined || hasta == 'undefined' || hasta == undefined) {
+            console.log('no rango')
+            ventas = await Venta.find().populate('cliente').sort({ createdAt: -1 });
+            return res.status(200).json({ ok: true, data: ventas });
+        } else {
+            const fec_desde = new Date(desde + 'T00:00:01.000Z').toISOString();
+            const fec_hasta = new Date(hasta + 'T23:59:59.000Z').toISOString();
+
+            ventas = await Venta.find()
+                .gte('createdAt', new Date(fec_desde))
+                .lte('createdAt', new Date(fec_hasta))
+                .populate('cliente').sort({ createdAt: -1 });
+
+            return res.status(200).json({ ok: true, data: ventas });
+        }
+    } catch (error) {
+        winston.log('error', `error ${error}`, { service: 'obtención de ventas' });
+        return res.status(404).json({
+            ok: false,
+            msg: 'No se ha podido procesar la petición'
+        });
+    }
+}
 
 module.exports = {
     registrarCompraCliente,
+    obtenerComprasCliente,
+    obtenerDetalleComprasCliente,
+    obtenerVentasAdmin,
+    obtenerVentasRangoAdmin
 }
